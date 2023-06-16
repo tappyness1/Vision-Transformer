@@ -1,0 +1,15 @@
+hydra:
+  output_subdir: null
+
+save_model_path: model_weights/model_weights.pt
+
+dataset:
+  root: ../data
+  dataset: Flowers102 # Flowers102 or FashionMNIST
+
+train:
+  epochs: 2
+  lr: 3e-4
+  weight_decay: 5e-5
+
+show_model_summary: False

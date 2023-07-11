@@ -33,7 +33,7 @@ def train(train_set, cfg, in_channels = 3, num_classes = 10):
         # for i in tqdm(range(X.shape[0])):
         with tqdm(train_dataloader) as tepoch:
             for imgs, labels in tepoch:
-                # print (img.shape)
+                print (imgs.shape)
                 optimizer.zero_grad() 
                 # only need to give [N x num_classes]. Loss function will do the rest for you. Probably an internal argmax
                 out = network(imgs.to(device))

@@ -12,3 +12,7 @@ pyyaml==6.0
 hydra-core==1.3.2
 torchsummary==1.5.1
 hydra-optuna-sweeper==1.2.0
+uvicorn
+fastapi
+scikit-image
+python-multipart==0.0.5

@@ -6,8 +6,8 @@ import numpy as np
 
 def gen_patches(input, patch_dim):
     # helper function where we will take the image and create the patches
-
     dims = input.shape
+    print (dims)
 
     # assume 224x224x3 images are coming in 
 

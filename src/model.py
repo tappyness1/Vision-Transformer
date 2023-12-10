@@ -1,13 +1,13 @@
 from torch.nn import Conv2d, ReLU, MaxPool2d, BatchNorm2d, AdaptiveAvgPool2d, Linear, Softmax
 import torch.nn as nn
 import torch
-from src.transformer_utils import TransformerBlockLooper
+from src.transformer_utils import TransformerBlock
 import numpy as np
 
 def gen_patches(input, patch_dim):
     # helper function where we will take the image and create the patches
     dims = input.shape
-    print (dims)
+    # print (dims)
 
     # assume 224x224x3 images are coming in 
 
@@ -40,7 +40,7 @@ class ViT(nn.Module):
         self.pos_embed.requires_grad = False
 
         # transformer block
-        self.transformer_encoder = TransformerBlockLooper(hidden_d,k_heads)
+        self.transformer_encoder = TransformerBlock(hidden_d,k_heads)
 
         self.mlp = nn.Sequential(nn.Linear(hidden_d, num_classes), nn.Softmax(dim = -1))
         

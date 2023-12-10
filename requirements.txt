@@ -16,3 +16,4 @@ uvicorn
 fastapi
 scikit-image
 python-multipart==0.0.5
+optuna==2.10.1

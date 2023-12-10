@@ -21,5 +21,5 @@ def train_model_hptuning(cfg : DictConfig):
     return f1_score
 
 if __name__ == "__main__":
-    train_model()
-    # train_model_hptuning() # remember to use --multirun flag if it is not turned on in the yaml
+    # train_model()
+    train_model_hptuning() # remember to use --multirun flag if it is not turned on in the yaml

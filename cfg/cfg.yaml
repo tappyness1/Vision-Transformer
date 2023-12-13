@@ -4,7 +4,7 @@ hydra:
 save_model_path: model_weights/model_weights.pt
 
 dataset:
-  root: ../data
+  root: ../data # for GCP - use "data/""
   dataset: Flowers102 # Flowers102 or FashionMNIST
 
 train:
@@ -13,3 +13,4 @@ train:
   weight_decay: 5e-5
 
 show_model_summary: False
+num_classes : 102

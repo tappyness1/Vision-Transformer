@@ -28,7 +28,7 @@ in_channels: 3
 num_classes : 102
 
 dataset:
-  root: ../data
+  root: ../data # for GCP - use "data/""
   dataset: Flowers102 # Flowers102 or FashionMNIST
 
 show_model_summary: False

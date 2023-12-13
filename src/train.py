@@ -28,6 +28,7 @@ def train(train_set, cfg, in_channels = 3, num_classes = 10):
     network = network.to(device)
 
     train_dataloader = DataLoader(train_set, batch_size=20)
+    
     for epoch in range(cfg['train']['epochs']):
         print (f"Epoch {epoch + 1}:")
         # for i in tqdm(range(X.shape[0])):

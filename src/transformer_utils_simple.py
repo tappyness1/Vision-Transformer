@@ -8,7 +8,7 @@ class TransformerBlock(nn.Module):
     def __init__(self, input_dim = (3, 224, 224), patch_dim = 16, n_patches = 196, hidden_d = 8):
         super(TransformerBlock, self).__init__()
         self.patch_dim = patch_dim
-        self.n_patches = 196
+        self.n_patches = 196 # (224*224) / (16*16) 
         self.hidden_d = hidden_d
 
         # first head

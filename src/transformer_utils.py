@@ -11,6 +11,8 @@ class MultiHeadBlockLooper(nn.Module):
         self.k_heads = k_heads
         head_size = int(hidden_d / k_heads)
         self.head_size = head_size
+
+        # q k and v by right should be identical with each other when first initialised ie deepcopy 
         self.q_weights = nn.ModuleList([nn.Linear(head_size, head_size) for i in range(k_heads)])
         self.k_weights = nn.ModuleList([nn.Linear(head_size, head_size) for i in range(k_heads)])
         self.v_weights = nn.ModuleList([nn.Linear(head_size, head_size) for i in range(k_heads)])
@@ -86,7 +88,7 @@ class MultiHeadBlock(nn.Module):
 class TransformerBlock(nn.Module):
     # loop implementation for multihead because I'm a scrub
 
-    def __init__(self, hidden_d = 8, k_heads = 2, looper = False):
+    def __init__(self, hidden_d = 8, k_heads = 2):
         super(TransformerBlock, self).__init__()
         self.hidden_d = hidden_d
         self.num_heads = k_heads
@@ -100,6 +102,7 @@ class TransformerBlock(nn.Module):
         self.mlp = MLPBlock(hidden_d)
         
     def forward(self, input):
+        print (f"transformer block input shape: {input.shape}")
         
         skip_con_1 = torch.clone(input)
         out = self.layer_norm(input)

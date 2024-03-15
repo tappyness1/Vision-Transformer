@@ -1,4 +1,3 @@
-from torch.nn import Conv2d, ReLU, MaxPool2d, BatchNorm2d, AdaptiveAvgPool2d, Linear, Softmax
 import torch.nn as nn
 import torch
 from src.transformer_utils import TransformerBlock
@@ -36,6 +35,7 @@ class ViT(nn.Module):
         self.class_token = nn.Parameter(torch.rand(1, hidden_d))
 
         # add positional embedding
+        # why do we even need nn.Parameter here?
         self.pos_embed = nn.Parameter(torch.tensor(get_positional_embeddings(n_patches + 1, hidden_d)))
         self.pos_embed.requires_grad = False
 
@@ -52,13 +52,13 @@ class ViT(nn.Module):
         # run a nn.Linear layer here
         # linear_projection = nn.Linear(patches.shape[2], self.hidden_d)
         # out = linear_projection(patches)
-        out = self.linear_projection(out)
+        out = self.linear_projection(out) # typically will be (batch, n_patches, hidden_d), n_patches = 196, hidden_d = 8
 
         # stack the class token on top of previous token
-        out = torch.stack([torch.vstack((self.class_token, out[i])) for i in range(len(out))])
+        out = torch.stack([torch.vstack((self.class_token, out[i])) for i in range(len(out))]) # will now be (batch, n_patches + 1, hidden_d)
 
         # add the positional embeddings
-        out += self.pos_embed
+        out += self.pos_embed # same as after class token, will be (batch, n_patches + 1, hidden_d)
 
         out = self.transformer_encoder(out)
         

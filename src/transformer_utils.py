@@ -86,15 +86,14 @@ class MultiHeadBlock(nn.Module):
         return res
 
 class TransformerBlock(nn.Module):
-    # loop implementation for multihead because I'm a scrub
 
-    def __init__(self, hidden_d = 8, k_heads = 2):
+    def __init__(self, hidden_d = 8, k_heads = 2, looper = False):
         super(TransformerBlock, self).__init__()
         self.hidden_d = hidden_d
         self.num_heads = k_heads
 
         self.layer_norm = nn.LayerNorm(hidden_d)
-        if looper:
+        if looper: # choose the loop implementation of MSA
             self.msa = MultiHeadBlockLooper(hidden_d=hidden_d, k_heads=k_heads)
         else:
             self.msa = MultiHeadBlock(hidden_d=hidden_d, k_heads=k_heads)

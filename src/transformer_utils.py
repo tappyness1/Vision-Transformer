@@ -20,6 +20,7 @@ class MultiHeadBlockLooper(nn.Module):
     def forward(self, x):
         # x will be split into N x D/k to make it mutable for U_{qkv} 
         dim_x = x.shape
+        print (f"MultiHeadBlockLooper input: {dim_x}")
         res = []
         for head in range(self.k_heads):
             q = self.q_weights[head](x[:, :, head * self.head_size: head * self.head_size + self.head_size])
@@ -87,7 +88,7 @@ class MultiHeadBlock(nn.Module):
 
 class TransformerBlock(nn.Module):
 
-    def __init__(self, hidden_d = 8, k_heads = 2, looper = False):
+    def __init__(self, hidden_d = 8, k_heads = 2, looper = True):
         super(TransformerBlock, self).__init__()
         self.hidden_d = hidden_d
         self.num_heads = k_heads

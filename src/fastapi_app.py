@@ -73,11 +73,9 @@ def process_pil_image(img_array: np.ndarray) -> torch.Tensor:
 
 app = FastAPI()
 
-
 @app.get("/")
 def read_root():
     return {"message": "Welcome from the API"}
-
 
 @app.post("/predict")
 async def run_inference(file: UploadFile):
@@ -86,7 +84,6 @@ async def run_inference(file: UploadFile):
     model = get_model()
     pred = predict(model, img_array)
     return str(int(pred))
-
 
 if __name__ == "__main__":
     uvicorn.run("src.fastapi_app:app")

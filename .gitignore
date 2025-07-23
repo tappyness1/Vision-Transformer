@@ -1,6 +1,10 @@
-__pycache__
 flowers-102
 FashionMNIST
-model_weights.pt
+*.pt
 outputs
 multirun
+.venv
+__pycache__
+build
+*.egg-info
+*.db

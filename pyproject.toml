@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "VisionTransformer"
+version = "0.1.0"
+description = "Implementing Vision Transformer in PyTorch"
+authors = [{name = "Calvin Neo"}]
+requires-python = ">=3.8"
+
+dependencies = [
+    "torch==2.0.0",
+    "torchvision==0.15.1",
+    "scikit-learn==1.2.2",
+    "pandas==1.5.3",
+    "opencv-python",
+    "scipy==1.10.1",
+    "tqdm==4.65.0",
+    "matplotlib==3.7.1",
+    "pyyaml==6.0",
+    "hydra-core==1.3.2",
+    "torchsummary==1.5.1",
+    "hydra-optuna-sweeper==1.2.0",
+    "uvicorn",
+    "fastapi",
+    "scikit-image",
+    "python-multipart==0.0.5",
+    "optuna==2.10.1",
+    "chardet==5.2.0"
+]

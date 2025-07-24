@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 
+
 def train(train_set, cfg, in_channels = 3, num_classes = 10):
 
     loss_function = nn.CrossEntropyLoss()
@@ -16,7 +17,7 @@ def train(train_set, cfg, in_channels = 3, num_classes = 10):
 
     network.train()
 
-    optimizer = optim.SGD(network.parameters(), lr=cfg['train']['lr'], weight_decay=cfg['train']['weight_decay'])
+    optimizer = optim.AdamW(network.parameters(), lr=cfg['train']['lr'], weight_decay=cfg['train']['weight_decay'])
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -29,11 +30,11 @@ def train(train_set, cfg, in_channels = 3, num_classes = 10):
         # for i in tqdm(range(X.shape[0])):
         with tqdm(train_dataloader) as tepoch:
             for imgs, labels in tepoch:
-                print (imgs.shape)
-                optimizer.zero_grad() 
                 # only need to give [N x num_classes]. Loss function will do the rest for you. Probably an internal argmax
                 out = network(imgs.to(device))
                 loss = loss_function(out, labels.to(device))
+
+                optimizer.zero_grad() 
                 loss.backward()
                 optimizer.step()
                 tepoch.set_postfix(loss=loss.item())
@@ -49,15 +50,13 @@ if __name__ == "__main__":
 
     from src.dataset import get_load_data
     cfg = {"save_model_path": "model_weights/model_weights.pt",
-           "epochs": 2, 
-           'show_model_summary': True, 
-           'train': {'lr': 0.001, 'weight_decay': 5e-5},
+           'train': {"epochs": 2, 'lr': 31e-4, 'weight_decay': 0.05},
            'vit_config': {
                'img_dim': (3, 224, 224),
                'patch_size': 16,
                'num_classes': 102,
                'hidden_dim': 768,
-               'num_heads': 14,
+               'num_heads': 12,
                'num_transformers': 12
            }
            }

@@ -14,3 +14,27 @@ train:
 
 show_model_summary: False
 num_classes : 102
+
+vit-base:
+  img_dim: (3, 224, 224)
+  patch_size: 16
+  num_classes: ${num_classes}
+  hidden_dim: 768
+  num_heads: 12
+  num_transformers: 12
+
+vit-large:
+  img_dim: (3, 224, 224)
+  patch_size: 16
+  num_classes: ${num_classes}
+  hidden_dim: 1024
+  num_heads: 16
+  num_transformers: 24
+
+vit-huge:
+  img_dim: (3, 224, 224)
+  patch_size: 16
+  num_classes: ${num_classes}
+  hidden_dim: 1280
+  num_heads: 16
+  num_transformers: 32

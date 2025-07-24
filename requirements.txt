@@ -18,3 +18,4 @@ scikit-image
 python-multipart==0.0.5
 optuna==2.10.1
 chardet==5.2.0
+streamlit

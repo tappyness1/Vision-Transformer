@@ -11,3 +11,9 @@ Make sure you change the directory of your data. I used Flowers102 dataset hence
 ```
 python -m src.main
 ```
+
+Run the app:
+
+```
+streamlit run app.py --server.port 8501 --server.enableCORS false --server.enableXsrfProtection false &
+```

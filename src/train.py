@@ -40,7 +40,7 @@ def train(train_set, cfg, in_channels = 3, num_classes = 10):
                 tepoch.set_postfix(loss=loss.item())
         
     print("training done")
-    torch.save(network, cfg['save_model_path'])
+    torch.save(network.state_dict(), cfg['save_model_path'])
 
     return network
 

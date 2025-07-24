@@ -40,7 +40,7 @@ class MLPLayer(nn.Module):
         super().__init__()
         self.linear_1 = nn.Linear(hidden_dim, hidden_dim * 4)
         self.gelu = nn.GELU()
-        self.linear_2 = nn.Linear(hidden_dim*4, hidden_dim)
+        self.linear_2 = nn.Linear(hidden_dim * 4, hidden_dim)
         self.dropout = nn.Dropout(0.1)
     
     def forward(self, x):
@@ -76,14 +76,14 @@ class ViT(nn.Module):
         super().__init__()
         C, H, _ = img_dim
         N = int((H/patch_size) **2)
-        flat_patch_dim = patch_size**2 * C
+        flat_patch_dim = patch_size ** 2 * C
         self.hidden_dim = hidden_dim
 
         self.unfold = torch.nn.Unfold(kernel_size=(patch_size, patch_size), stride=(patch_size, patch_size))
 
         self.img_enc = nn.Linear(flat_patch_dim, hidden_dim)        
         self.pos_emb = nn.Parameter(torch.randn((1, N + 1, hidden_dim)))
-        self.cls_token = nn.Parameter(torch.randn((1, 1,hidden_dim)))
+        self.cls_token = nn.Parameter(torch.randn((1, 1, hidden_dim)))
         self.transformer_blocks = nn.Sequential(*[TransformerEncoderLayer(hidden_dim, num_heads) for _ in range(num_transformers)]) 
         self.mlp = nn.Linear(hidden_dim, num_classes)
 

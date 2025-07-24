@@ -1,25 +1,20 @@
-import torch.nn as nn
-from src.model import ViT
-import torch.optim as optim
-import torch
-from tqdm import tqdm
-from torch.utils.data import DataLoader
-from torchsummary import summary
 import hydra
+import torch
+import torch.nn as nn
+import torch.optim as optim
 from omegaconf import DictConfig, OmegaConf
+from src.model import ViT
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+
 
 def train(train_set, cfg, in_channels = 3, num_classes = 10):
 
     loss_function = nn.CrossEntropyLoss()
-
-    # TODO: extract img size
     
-    network = ViT(img_size = 224, patch_dim = 16, hidden_d = 8, k_heads = 2, num_classes = num_classes)
+    network = ViT(**cfg['vit_config'])
 
     network.train()
-
-    if cfg['show_model_summary']:
-        summary(network, (in_channels,224,224))
 
     optimizer = optim.SGD(network.parameters(), lr=cfg['train']['lr'], weight_decay=cfg['train']['weight_decay'])
 
@@ -54,8 +49,19 @@ if __name__ == "__main__":
 
     from src.dataset import get_load_data
     cfg = {"save_model_path": "model_weights/model_weights.pt",
-           "epochs": 2, 'show_model_summary': True, 'train': {'lr': 0.001, 'weight_decay': 5e-5}}
-    train_set, test_set = get_load_data(root = "../data", dataset = "Flowers102")
+           "epochs": 2, 
+           'show_model_summary': True, 
+           'train': {'lr': 0.001, 'weight_decay': 5e-5},
+           'vit_config': {
+               'img_dim': (3, 224, 224),
+               'patch_size': 16,
+               'num_classes': 102,
+               'hidden_dim': 768,
+               'num_heads': 14,
+               'num_transformers': 12
+           }
+           }
+    train_set, test_set = get_load_data(root = "data", dataset = "Flowers102")
     train(train_set = train_set, cfg = cfg, in_channels = 3, num_classes = 102)
 
     # cannot use FashionMNIST because size needs to be 224x224x3 at the very least

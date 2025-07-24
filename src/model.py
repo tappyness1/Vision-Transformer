@@ -1,75 +1,109 @@
-import torch.nn as nn
-import torch
-from src.transformer_utils import TransformerBlock
+from typing import Tuple
+
 import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
-def gen_patches(input, patch_dim):
-    # helper function where we will take the image and create the patches
-    dims = input.shape
-    # print (dims)
-
-    # assume 224x224x3 images are coming in 
-
-    return torch.reshape(input, (dims[0], -1, (patch_dim**2)*dims[-3]))
-
-def get_positional_embeddings(sequence_length, d):
+def get_positional_embeddings(sequence_length, d): # not used in ViT
     result = torch.ones(sequence_length, d)
     for i in range(sequence_length):
         for j in range(d):
             result[i][j] = np.sin(i / (10000 ** (j / d))) if j % 2 == 0 else np.cos(i / (10000 ** ((j - 1) / d)))
     return result
 
-class ViT(nn.Module):
+class AttentionBlock(nn.Module):
+    def __init__(self, hidden_dim = 8, num_heads = 2):
+        super().__init__()
+        self.head_size = hidden_dim // num_heads
+        self.num_heads = num_heads
+        self.query = nn.Linear(hidden_dim, hidden_dim, bias = True)
+        self.key = nn.Linear(hidden_dim, hidden_dim, bias = True)
+        self.value = nn.Linear(hidden_dim, hidden_dim, bias = True)
+        self.proj = nn.Linear(hidden_dim, hidden_dim)
+        self.dropout = nn.Dropout(0.1)
 
-    def __init__(self, img_size = 224, patch_dim = 16, hidden_d = 8, k_heads = 2, num_classes= 10):
-        super(ViT, self).__init__()
-        self.patch_dim = patch_dim
-        n_patches = int(((img_size**2)*3) / ((patch_dim**2)*3))
-
-        # create the linear projection layer. basically means nn.Linear
-        # default is 16x16x3 patches, with 8 output dims adding bias, 
-        # we thus have 16x16x3 = 768 + 1 (bias), then 769 x 8 = 6152 dims here.
-        self.linear_projection = nn.Linear((patch_dim**2)*3, hidden_d)
-
-        # add in parameter for class token, which is a 1-D 
-        self.class_token = nn.Parameter(torch.rand(1, hidden_d))
-
-        # add positional embedding
-        # why do we even need nn.Parameter here?
-        self.pos_embed = nn.Parameter(torch.tensor(get_positional_embeddings(n_patches + 1, hidden_d)))
-        self.pos_embed.requires_grad = False
-
-        # transformer block
-        self.transformer_encoder = TransformerBlock(hidden_d,k_heads)
-
-        self.mlp = nn.Sequential(nn.Linear(hidden_d, num_classes), nn.Softmax(dim = -1))
-        
-    def forward(self, input):
-
-        # generate patches here
-        out = gen_patches(input, self.patch_dim)
-
-        # run a nn.Linear layer here
-        # linear_projection = nn.Linear(patches.shape[2], self.hidden_d)
-        # out = linear_projection(patches)
-        out = self.linear_projection(out) # typically will be (batch, n_patches, hidden_d), n_patches = 196, hidden_d = 8
-
-        # stack the class token on top of previous token
-        out = torch.stack([torch.vstack((self.class_token, out[i])) for i in range(len(out))]) # will now be (batch, n_patches + 1, hidden_d)
-
-        # add the positional embeddings
-        out += self.pos_embed # same as after class token, will be (batch, n_patches + 1, hidden_d)
-
-        out = self.transformer_encoder(out)
-        
-        out = out[:, 0, :]
-        out = self.mlp(out)
-
+    def forward(self, x):
+        B, T, C = x.shape
+        Q, K, V = self.query(x), self.key(x), self.value(x)
+        Q, K, V = Q.view(B, self.num_heads, T, self.head_size), K.view(B, self.num_heads, T, self.head_size), V.view(B, self.num_heads, T, self.head_size)
+        wei = Q @ K.transpose(-2, -1) / (self.head_size ** 0.5)
+        wei = F.softmax(wei, dim = -1)
+        wei = self.dropout(wei)
+        out = wei @ V
+        out = out.view(B, T, self.num_heads * self.head_size) 
+        out = self.dropout(self.proj(out))
         return out
 
+class MLPLayer(nn.Module):
+    def __init__(self, hidden_dim):
+        super().__init__()
+        self.linear_1 = nn.Linear(hidden_dim, hidden_dim * 4)
+        self.gelu = nn.GELU()
+        self.linear_2 = nn.Linear(hidden_dim*4, hidden_dim)
+        self.dropout = nn.Dropout(0.1)
+    
+    def forward(self, x):
+        out = self.linear_1(x)
+        out = self.gelu(out)
+        out = self.linear_2(out)
+        out = self.dropout(out)
+        return out
+
+class TransformerEncoderLayer(nn.Module):
+
+    def __init__(self, hidden_dim = 8, num_heads = 2):
+        super().__init__()
+        self.ln_1 = nn.LayerNorm(hidden_dim)
+        self.ln_2 = nn.LayerNorm(hidden_dim)
+        self.attn = AttentionBlock(hidden_dim, num_heads)
+        self.mlp = MLPLayer(hidden_dim)
+
+    def forward(self, x):
+        out = x + self.attn(self.ln_1(x))
+        out = out + self.mlp(self.ln_2(x))
+        return out
+
+class ViT(nn.Module):
+
+    def __init__(self, 
+                img_dim: Tuple[int,int,int] = (3, 224, 224), 
+                patch_size: int = 16, 
+                num_classes = 102,
+                hidden_dim = 8,
+                num_heads = 2):
+        super().__init__()
+        C, H, _ = img_dim
+        N = int((H/patch_size) **2)
+        flat_patch_dim = patch_size**2 * C
+        self.hidden_dim = hidden_dim
+
+        self.unfold = torch.nn.Unfold(kernel_size=(patch_size, patch_size), stride=(patch_size, patch_size))
+
+        self.img_enc = nn.Linear(flat_patch_dim, hidden_dim)        
+        self.pos_emb = nn.Parameter(torch.randn((1, N + 1, hidden_dim)))
+        self.cls_token = nn.Parameter(torch.randn((1, 1,hidden_dim)))
+        self.t1 = TransformerEncoderLayer(hidden_dim, num_heads)
+        self.mlp = nn.Linear(hidden_dim, num_classes)
+
+    def forward(self, x):
+        B, C, H, W = x.shape
+        out = self.patchify(x)
+        out = self.img_enc(out)
+        out = torch.cat((self.cls_token.expand(B, -1, -1), out), dim =1)
+        out += self.pos_emb
+        out = self.t1(out)
+        out = out[:, 0, :]
+        out = self.mlp(out)
+        return out 
+
+    def patchify(self, x) -> torch.Tensor:
+
+        patches = self.unfold(x)
+        patches = patches.transpose(1,2)
+        return patches
+
 if __name__ == "__main__":
-    import numpy as np
-    import torch
     from torchsummary import summary
 
     np.random.seed(42)
@@ -80,5 +114,5 @@ if __name__ == "__main__":
 
     model = ViT()
     
-    summary(model, (1, 3, 224, 224))
-    print (model.forward(X).shape)
+    # summary(model, (3, 224, 224))
+    print (model(X).shape)

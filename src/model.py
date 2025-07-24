@@ -71,7 +71,8 @@ class ViT(nn.Module):
                 patch_size: int = 16, 
                 num_classes = 102,
                 hidden_dim = 8,
-                num_heads = 2):
+                num_heads = 2,
+                num_transformers = 1):
         super().__init__()
         C, H, _ = img_dim
         N = int((H/patch_size) **2)
@@ -83,7 +84,7 @@ class ViT(nn.Module):
         self.img_enc = nn.Linear(flat_patch_dim, hidden_dim)        
         self.pos_emb = nn.Parameter(torch.randn((1, N + 1, hidden_dim)))
         self.cls_token = nn.Parameter(torch.randn((1, 1,hidden_dim)))
-        self.t1 = TransformerEncoderLayer(hidden_dim, num_heads)
+        self.transformer_blocks = nn.Sequential(*[TransformerEncoderLayer(hidden_dim, num_heads) for _ in range(num_transformers)]) 
         self.mlp = nn.Linear(hidden_dim, num_classes)
 
     def forward(self, x):
@@ -92,7 +93,7 @@ class ViT(nn.Module):
         out = self.img_enc(out)
         out = torch.cat((self.cls_token.expand(B, -1, -1), out), dim =1)
         out += self.pos_emb
-        out = self.t1(out)
+        out = self.transformer_blocks(out)
         out = out[:, 0, :]
         out = self.mlp(out)
         return out 

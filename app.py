@@ -1,11 +1,12 @@
 import os
 
+import matplotlib.pyplot as plt
 import streamlit as st
 import torch
 import torch.nn.functional as F
 from src.dataset import get_load_data
+from src.model import ViT
 from src.predict import predict
-from src.vit import ViT
 from torchvision import transforms
 
 # --- Configs ---
@@ -31,19 +32,24 @@ def load_model():
     model.eval()
     return model
 
+def plot_image(image, title=""):
+    fig, ax = plt.subplots()
+    ax.imshow(image)
+    ax.axis("off")
+    ax.set_title(title)
+    st.pyplot(fig)
+
 
 # --- Streamlit UI ---
 st.title("🌸 ViT Flower Classifier")
 
 model = load_model()
 
-option = st.radio("Choose an image source:", ["Upload your own", "Random from test set"])
-
 _, test_set = get_load_data(root="data", dataset="Flowers102", download=True)
 idx = st.slider("Choose test image index", 0, len(test_set)-1, 0)
 image, label = test_set[idx]
-st.image(image, caption="Test Set Image", use_column_width=True)
+plot_image(image.permute(1, 2, 0))
 
 pred_idx, prob = predict(model, image)
 st.write(f"**Prediction:** {pred_idx} ({prob * 100:.2f}%)")
-st.write(f"**Ground Truth:** {pred_idx}")
+st.write(f"**Ground Truth:** {label}")

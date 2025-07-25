@@ -46,8 +46,8 @@ if __name__ == "__main__":
     torch.manual_seed(42)
 
     from src.dataset import get_load_data
-    cfg = {"save_model_path": "model_weights/model_weights.pt",
-           'train': {"epochs": 2, 'lr': 31e-4, 'weight_decay': 0.05},
+    cfg = {"save_model_path": "model_weights/model_weights_cifar10_epochs_10.pt",
+           'train': {"epochs": 10, 'lr': 1e-4, 'weight_decay': 0.05},
            'vit_config': {
                'img_dim': (3, 224, 224),
                'patch_size': 16,

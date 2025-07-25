@@ -1,8 +1,8 @@
+import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import Dataset
 from torchvision import datasets
 from torchvision.transforms import Compose, Resize, ToTensor
-import matplotlib.pyplot as plt
 
 
 def get_load_data(root = "data", dataset = "FashionMNIST", download = False):
@@ -33,6 +33,21 @@ def get_load_data(root = "data", dataset = "FashionMNIST", download = False):
         test_data = datasets.Flowers102(
             root=root,
             split = "train",
+            download=download,
+            transform=Compose([Resize((224,224)), ToTensor()])
+        )
+        
+    elif dataset == "CIFAR10":
+        training_data = datasets.CIFAR10(
+            root=root,
+            train=True,
+            download=download,
+            transform=Compose([Resize((224,224)), ToTensor()]) 
+        )
+
+        test_data = datasets.CIFAR10(
+            root=root,
+            train = False,
             download=download,
             transform=Compose([Resize((224,224)), ToTensor()])
         )

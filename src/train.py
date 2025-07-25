@@ -1,12 +1,9 @@
-import hydra
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from omegaconf import DictConfig, OmegaConf
 from src.model import ViT
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-
 
 
 def train(train_set, cfg, in_channels = 3, num_classes = 10):
@@ -54,14 +51,14 @@ if __name__ == "__main__":
            'vit_config': {
                'img_dim': (3, 224, 224),
                'patch_size': 16,
-               'num_classes': 102,
+               'num_classes': 10,
                'hidden_dim': 768,
                'num_heads': 12,
                'num_transformers': 12
            }
            }
-    train_set, test_set = get_load_data(root = "data", dataset = "Flowers102")
-    train(train_set = train_set, cfg = cfg, in_channels = 3, num_classes = 102)
+    train_set, test_set = get_load_data(root = "data", dataset = "CIFAR10", download=True)
+    train(train_set = train_set, cfg = cfg, in_channels = 3, num_classes = 10)
 
     # cannot use FashionMNIST because size needs to be 224x224x3 at the very least
     # train_set, test_set = get_load_data(root = "../data", dataset = "FashionMNIST")

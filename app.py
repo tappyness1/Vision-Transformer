@@ -10,9 +10,12 @@ from src.predict import predict
 from torchvision import transforms
 
 # --- Configs ---
-MODEL_PATH = "model_weights/model_weights.pt"
+MODEL_PATH = "model_weights/model_weights_cifar10_epochs_10.pt"
 # CLASS_NAMES = [f"class_{i}" for i in range(102)]  # Replace with actual names if available
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+DATASET = "CIFAR10"
+num_classes = 10
+img_size = 32
 
 
 # --- Load Model ---
@@ -21,7 +24,7 @@ def load_model():
     vit_config = {
         'img_dim': (3, 224, 224),
         'patch_size': 16,
-        'num_classes': 102,
+        'num_classes': num_classes,
         'hidden_dim': 768,
         'num_heads': 12,
         'num_transformers': 12
@@ -41,15 +44,15 @@ def plot_image(image, title=""):
 
 
 # --- Streamlit UI ---
-st.title("🌸 ViT Flower Classifier")
+st.title(f"ViT {DATASET} Classifier")
 
 model = load_model()
 
-_, test_set = get_load_data(root="data", dataset="Flowers102", download=True)
+_, test_set = get_load_data(root="data", dataset=DATASET, download=True)
 idx = st.slider("Choose test image index", 0, len(test_set)-1, 0)
 image, label = test_set[idx]
 plot_image(image.permute(1, 2, 0))
 
-pred_idx, prob = predict(model, image)
+pred_idx, prob = predict(model, image.to(DEVICE))
 st.write(f"**Prediction:** {pred_idx} ({prob * 100:.2f}%)")
 st.write(f"**Ground Truth:** {label}")

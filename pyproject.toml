@@ -10,8 +10,6 @@ authors = [{name = "Calvin Neo"}]
 requires-python = ">=3.8"
 
 dependencies = [
-    "torch==2.0.0",
-    "torchvision==0.15.1",
     "scikit-learn==1.2.2",
     "pandas==1.5.3",
     "opencv-python",

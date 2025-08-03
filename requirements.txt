@@ -1,7 +1,8 @@
-# python==3.8
-# conda install pytorch==1.12.0 torchvision==0.13.0 cudatoolkit=10.2 -c pytorch
-torch==1.13
-torchvision==0.14
+# python==3.10
+# use Google, Deep Learning VM with CUDA 12.4, M129, Debian 11, Python 3.10. With CUDA 12.4 preinstalled. 
+# pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+# torch==2.6.0
+# torchvision==0.21.0
 scikit-learn==1.2.2
 pandas==1.5.3
 opencv-python
